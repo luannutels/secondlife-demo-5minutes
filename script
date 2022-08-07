@@ -1,0 +1,56 @@
+
+integer Limit = 300;    // 5 minutes
+integer count = 0;      // empty counter
+ 
+default
+{
+    state_entry()
+    {
+        //llSay(0, "Hello, Thank you for purchasing our DEMO product!");
+    }
+ 
+    attach(key id) // gets AvatarKey who wear it automatically
+    {
+        if(id) // check the available key
+        {
+            llRequestPermissions(id, PERMISSION_ATTACH); // asks for permissions to attach/detach
+        }
+    }
+ 
+    run_time_permissions(integer perm)
+    {
+        if(perm & PERMISSION_ATTACH) // check the requested permission
+        {
+            if(count < Limit) // check the counter-limit
+            {
+                llSetTimerEvent(1); // start the timer
+                llSay(0, "Product DEMO, you have 5 minutes. You can only use it once");
+            }
+            else if(count >= Limit) // check the counter-limit
+            {
+                llSay(0, "DEMO expired! Buy the full version == SL store: coloque sua loja aqui");
+                llDetachFromAvatar(); // detach the object from avatar when permission is given
+            }
+        }
+    }
+ 
+    timer()
+    {
+        if(count == Limit) // check the counter-limit
+        {
+            llSetTimerEvent(0); // stop the timer
+            llDetachFromAvatar(); // detach the object from avatar when permission is given
+            return; // leave the event immediately
+        }
+        count += 1; // counts the seconds
+    }
+ 
+    on_rez(integer Dae)
+    {
+        if(llGetAttached() == 0) // check for rezzing onground
+        {
+            llSay(0, "You cannot Rez this object! This is rude and illegal!");
+            llDie(); // delete the complete object
+        }
+    }
+}
